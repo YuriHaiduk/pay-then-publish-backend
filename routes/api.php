@@ -1,7 +1,10 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use \App\Http\Controllers\Api\V1\Auth;
+use \App\Http\Controllers\Api\V1\Admin;
+use \App\Http\Controllers\Api\V1\Client;
+use \App\Http\Controllers\Api\V1\Public;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,6 +17,36 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::middleware('auth:sanctum')->group(function () {
+
+    Route::group([
+        'prefix' => 'admin',
+//        'middleware' => ['admin'],
+    ], function () {
+        Route::post('/plans', Admin\PlanController::class);
+    });
+
+    Route::group([
+        'prefix' => 'client',
+//        'middleware' => ['client'],
+    ], function () {
+        Route::get('/plans', Client\PlanController::class);
+
+        Route::get('/posts', [Client\PostController::class, 'index']);
+        Route::post('/posts', [Client\PostController::class, 'store'])/*->middleware('subscribed')*/
+        ;
+        Route::put('/posts/{post}', [Client\PostController::class, 'changeStatus'])/*->middleware('subscribed')*/
+        ;
+
+        Route::post('/subscribe', Client\SubscriptionController::class);
+
+    });
+
+    Route::post('auth/logout', Auth\LogoutController::class);
+
 });
+
+Route::get('/posts', Public\PostController::class);
+
+Route::post('auth/register', Auth\RegisterController::class);
+Route::post('auth/login', Auth\LoginController::class);
