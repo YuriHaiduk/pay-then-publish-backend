@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\Client\StorePostRequest;
 use App\Http\Resources\Api\V1\Client\PostResource;
 use App\Models\Post;
+use App\Repositories\PostRepository;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
@@ -14,14 +15,20 @@ use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
 {
+
+    protected $postRepository;
+
+    public function __construct(PostRepository $postRepository)
+    {
+        $this->postRepository = $postRepository;
+    }
+
     /**
      * Handle the incoming request.
      */
     public function index(): ResourceCollection
     {
-        $posts = Post::with('user')
-            ->where('user_id', Auth::id())
-            ->paginate();
+        $posts = $this->postRepository->getPostsByUserId(Auth::id());
         return PostResource::collection($posts);
     }
 

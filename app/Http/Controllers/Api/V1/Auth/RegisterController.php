@@ -28,6 +28,6 @@ class RegisterController extends Controller
 
         return response()->json([
             'access_token' => $user->createToken('client')->plainTextToken,
-        ],Response::HTTP_CREATED);
+        ], Response::HTTP_CREATED);
     }
 }
