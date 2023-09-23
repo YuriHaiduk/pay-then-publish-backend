@@ -15,8 +15,9 @@ class SubscriptionController extends Controller
     {
 
         $data = $request->validated();
-        $planId = $data['plan_id'];
+        $planId = (int) $data['plan_id'];
+        $userPrice = (int) $data['user_price'];
 
-        return $subscribeService->subscribe($planId);
+        return $subscribeService->subscribe($planId, $userPrice);
     }
 }

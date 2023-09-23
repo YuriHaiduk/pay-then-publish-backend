@@ -25,6 +25,7 @@ class SubscribeRequest extends FormRequest
     {
         return [
             'plan_id' => ['required', 'integer', Rule::exists(Plan::class, 'id')],
+            'user_price' => 'required|integer',
         ];
     }
 }

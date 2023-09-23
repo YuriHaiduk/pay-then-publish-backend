@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\V1\Client;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\V1\Client\ChangePostStatusRequest;
 use App\Http\Requests\Api\V1\Client\StorePostRequest;
 use App\Http\Resources\Api\V1\Client\PostResource;
 use App\Models\Post;
@@ -57,7 +56,17 @@ class PostController extends Controller
         $post = Post::findOrFail($id);
 
         if (!$user->hasActiveSubscription()) {
-            return response()->json(['message' => 'You need an active subscription to activate a post.']);
+            return response()->json(
+                ['errors' => 'You need an active subscription to activate a post.'],
+                Response::HTTP_UNPROCESSABLE_ENTITY
+            );
+        }
+
+        if ($post->user_id != $user->id) {
+            return response()->json(
+                ['errors' => 'You can activate only your own posts.'],
+                Response::HTTP_UNPROCESSABLE_ENTITY
+            );
         }
 
         $activeSubscription = $user->activeSubscription();
@@ -65,7 +74,10 @@ class PostController extends Controller
         $activatedPosts = $user->activatedPosts();
 
         if ($activatedPosts >= $activeSubscription->plan->amount) {
-            return response()->json(['message' => 'You have reached your post limit for this subscription and cannot update more posts.']);
+            return response()->json(
+                ['message' => 'You have reached your post limit for this subscription and cannot update more posts.'],
+                Response::HTTP_UNPROCESSABLE_ENTITY
+            );
         }
 
         $post->update([

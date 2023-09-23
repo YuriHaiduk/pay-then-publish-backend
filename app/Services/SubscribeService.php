@@ -11,9 +11,24 @@ use Illuminate\Support\Facades\Auth;
 
 class SubscribeService
 {
-    public function subscribe(int $planId): JsonResponse|SubscriptionResource
+
+    protected $paymentService;
+
+    public function __construct(FakePaymentService $paymentService)
+    {
+        $this->paymentService = $paymentService;
+    }
+
+    public function subscribe(int $planId, int $userPrice): JsonResponse|SubscriptionResource
     {
         $user = Auth::user();
+
+        if (!$this->paymentService->makePayment($planId, $userPrice)) {
+            return response()->json(
+                ['errors' => 'Payment failed'],
+                Response::HTTP_UNPROCESSABLE_ENTITY
+            );
+        }
 
         if ($user->hasActiveSubscription()) {
             return response()->json(
