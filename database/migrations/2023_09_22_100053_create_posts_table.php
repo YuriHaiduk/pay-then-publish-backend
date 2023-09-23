@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('title');
             $table->text('content');
             $table->boolean('is_active')->default(false);
+            $table->dateTime('activation_date')->nullable();
             $table->timestamps();
         });
     }

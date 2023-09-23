@@ -9,6 +9,8 @@ class Subscription extends Model
 {
     use HasFactory;
 
+    const EXPIRATION_DAYS = 30;
+
     protected $fillable = [
         'user_id',
         'plan_id',

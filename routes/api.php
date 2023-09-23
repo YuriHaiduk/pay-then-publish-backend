@@ -21,22 +21,19 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::group([
         'prefix' => 'admin',
-//        'middleware' => ['admin'],
+        'middleware' => ['admin'],
     ], function () {
         Route::post('/plans', Admin\PlanController::class);
     });
 
     Route::group([
         'prefix' => 'client',
-//        'middleware' => ['client'],
     ], function () {
         Route::get('/plans', Client\PlanController::class);
 
         Route::get('/posts', [Client\PostController::class, 'index']);
-        Route::post('/posts', [Client\PostController::class, 'store'])/*->middleware('subscribed')*/
-        ;
-        Route::put('/posts/{post}', [Client\PostController::class, 'changeStatus'])/*->middleware('subscribed')*/
-        ;
+        Route::post('/posts', [Client\PostController::class, 'store']);
+        Route::put('/posts/{id}', [Client\PostController::class, 'activate']);
 
         Route::post('/subscribe', Client\SubscriptionController::class);
 

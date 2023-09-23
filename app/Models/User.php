@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -54,4 +55,39 @@ class User extends Authenticatable
         return $this->hasMany(Post::class);
     }
 
+    public function hasActiveSubscription(): bool
+    {
+        return Subscription::where('user_id', $this->id)
+            ->where('ends_at', '>', Carbon::now())
+            ->exists();
+    }
+
+    public function activeSubscription(): Subscription
+    {
+        return $this->subscriptions()
+            ->where('ends_at', '>', Carbon::now())
+            ->first();
+    }
+
+    public function activatedPosts(): int
+    {
+        $activeSubscription = $this->activeSubscription();
+
+        if (!$activeSubscription) {
+            return 0;
+        }
+
+        $startDate = $activeSubscription->created_at;
+        $endDate = $activeSubscription->ends_at;
+
+        return $this->posts()
+            ->where('is_active', true)
+            ->whereBetween('activation_date', [$startDate, $endDate])
+            ->count();
+    }
+
+    public function isAdmin()
+    {
+        return $this->role_id === Role::ROLE_ADMIN;
+    }
 }
