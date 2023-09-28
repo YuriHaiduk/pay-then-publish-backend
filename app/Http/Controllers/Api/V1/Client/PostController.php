@@ -36,16 +36,11 @@ class PostController extends Controller
     {
         $postData = $request->validated();
         $user = $request->user();
+        $userId = $user->id;
 
         if ($user->hasActiveSubscription()) {
 
-            $post = Post::create([
-                'user_id' => $user->id,
-                'title' => $postData['title'],
-                'content' => $postData['content'],
-                'is_active' => false,
-            ]);
-
+            $post = $this->postRepository->createPost($postData, $userId);
             return PostResource::make($post);
 
         }
@@ -60,7 +55,7 @@ class PostController extends Controller
     public function activate($id): JsonResponse|PostResource
     {
         $user = auth()->user();
-        $post = Post::findOrFail($id);
+        $post = $this->postRepository->findPostById($id);
 
         if (!$user->hasActiveSubscription()) {
             return response()->json(
@@ -87,10 +82,7 @@ class PostController extends Controller
             );
         }
 
-        $post->update([
-            'is_active' => true,
-            'activation_date' => Carbon::now()
-        ]);
+        $this->postRepository->activatePost($post);
 
         return PostResource::make($post);
     }

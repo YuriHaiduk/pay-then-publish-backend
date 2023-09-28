@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -45,12 +46,12 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    public function subscriptions()
+    public function subscriptions(): HasMany
     {
         return $this->hasMany(Subscription::class);
     }
 
-    public function posts()
+    public function posts(): HasMany
     {
         return $this->hasMany(Post::class);
     }
@@ -86,7 +87,7 @@ class User extends Authenticatable
             ->count();
     }
 
-    public function isAdmin()
+    public function isAdmin(): bool
     {
         return $this->role_id === Role::ROLE_ADMIN;
     }

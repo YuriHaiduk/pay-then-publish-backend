@@ -2,18 +2,26 @@
 
 namespace App\Services;
 
-use App\Models\Plan;
+use App\Repositories\PlanRepository;
 
 class FakePaymentService
 {
-    public function makePayment(int $planId, int $userPrice)
+
+    protected PlanRepository $planRepository;
+
+    public function __construct(PlanRepository $planRepository)
     {
-        $plan = Plan::find($planId);
+        $this->planRepository = $planRepository;
+    }
+
+    public function makePayment(int $planId, int $userPrice): bool
+    {
+        $plan = $this->planRepository->findPlanById($planId);
 
         if (!$plan) {
             return false;
         }
 
-        return $userPrice === (int) $plan->price;
+        return $userPrice === (int)$plan->price;
     }
 }
